@@ -37,7 +37,7 @@ export default async function Layout({
         />
         <main className="flex flex-col flex-1 w-full ">
           <div className="flex w-full items-center border-b">
-            <SidebarTrigger  />
+            <SidebarTrigger />
             <Navbar />
           </div>
           {children}

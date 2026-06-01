@@ -1,12 +1,5 @@
-import { cookies } from 'next/headers'
-import { createClient } from "@/lib/client";
+import { redirect } from "next/navigation";
 
-export default async function Home() {
-  const cookieStore = await cookies()
-
-  return (
-    <ul>
-     
-    </ul>
-  )
+export default function Page() {
+  redirect("/home");
 }
