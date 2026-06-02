@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 
 export interface Note {
   id: string;
+  user_id: string;
   title: string;
   content: string;
   created_at: string;
@@ -36,14 +37,25 @@ export function useCreateNote() {
 
   return useMutation({
     mutationFn: async (newNote: { title: string; content: string }) => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
       const { data, error } = await supabase
         .from(TABLE_KEYS.NOTES)
-        .insert([newNote])
+        .insert([
+          {
+            ...newNote,
+            user_id: user.id,
+          },
+        ])
         .select();
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       return data;
     },
