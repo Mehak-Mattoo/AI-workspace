@@ -9,6 +9,7 @@ export const authRoutes = {
 
 export const protectedRoutes = {
   HOME: "/home",
+  NOTE: "/notes",
   PROFILE: "/profile",
   SETTINGS: "/settings",
 };

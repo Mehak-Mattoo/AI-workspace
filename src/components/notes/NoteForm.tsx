@@ -2,8 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { Note } from "@/hooks/useNotes";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Button } from "../ui/button";
+import { Field, FieldGroup } from "../ui/field";
+import { Textarea } from "../ui/textarea";
 
 interface NoteFormProps {
+  openDialog: boolean;
   note?: Note | null;
   onSubmit: (note: { title: string; content: string }) => void;
   onDelete?: () => void;
@@ -12,6 +28,7 @@ interface NoteFormProps {
 }
 
 export function NoteForm({
+  openDialog,
   note,
   onSubmit,
   onDelete,
@@ -27,66 +44,56 @@ export function NoteForm({
   }, [note]);
 
   return (
-    <form
-      className="space-y-4 rounded-3xl border border-border bg-background p-6 shadow-sm"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit({ title: title.trim(), content: content.trim() });
-      }}
-    >
-      <div className="space-y-2">
-        <label className="block text-sm font-semibold text-foreground">
-          Title
-        </label>
-        <input
-          className="w-full rounded-xl border border-border bg-input px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          placeholder="Enter note title"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-semibold text-foreground">
-          Content
-        </label>
-        <textarea
-          className="min-h-[160px] w-full rounded-xl border border-border bg-input px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-          value={content}
-          onChange={(event) => setContent(event.target.value)}
-          placeholder="Write your note here"
-        />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="submit"
-          disabled={isSaving || title.trim().length === 0}
-          className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+    <>
+      <Dialog open={openDialog} onOpenChange={(open) => {
+        if (!open) {
+          onCancel?.();
+        }
+      }}>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            onSubmit({ title: title.trim(), content: content.trim() });
+            
+            setTitle("");
+            setContent("");
+          }}
         >
-          {note ? "Save note" : "Create note"}
-        </button>
+          <DialogTrigger asChild>
+          </DialogTrigger>
+          <DialogContent className="" >
+            <DialogHeader>
+              <DialogTitle>{note ? "Edit note" : "Add a new note"}</DialogTitle>
+              <DialogDescription>
+                {note ? "" : "Add a new note to your collection."}
+              </DialogDescription>
+            </DialogHeader>
+            <FieldGroup>
+              <Field>
+                <Label htmlFor="name-1">Title</Label>
+                <Input id="name-1" name="name" defaultValue={title} />
+              </Field>
+              <Field>
+                <Label htmlFor="username-1">Content</Label>
+                <Textarea id="username-1" name="username" defaultValue={content} rows={10} />
+              </Field>
+            </FieldGroup>
 
-        {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-full border border-border px-5 py-2 text-sm text-foreground transition hover:bg-muted"
-          >
-            Cancel
-          </button>
-        )}
-
-        {note && onDelete && (
-          <button
-            type="button"
-            onClick={onDelete}
-            className="rounded-full border border-destructive px-5 py-2 text-sm text-destructive transition hover:bg-destructive/10"
-          >
-            Delete
-          </button>
-        )}
-      </div>
-    </form>
+            <DialogFooter>
+             
+              <Button
+                type="submit"
+                disabled={isSaving}
+                onClick={() =>
+                  onSubmit({ title: title.trim(), content: content.trim() })
+                }
+              >
+                {isSaving ? "Saving..." : "Save changes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </form>
+      </Dialog>
+    </>
   );
 }

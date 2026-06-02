@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { NoteForm } from "@/components/notes/NoteForm";
 import {
   useCreateNote,
@@ -10,10 +10,14 @@ import {
   type Note,
 } from "@/hooks/useNotes";
 import { useNoteStore } from "@/lib/store";
+import { useRouter } from "next/navigation";
+import { protectedRoutes } from "@/app/routes";
 
 export function NotesApp() {
   const { data: notes = [], isLoading, isError, error } = useNotes();
   const { selectedNoteId, setSelectedNoteId } = useNoteStore();
+  const router = useRouter();
+  const [openDialog, setOpenDialog] = useState(false);
 
   const selectedNote = useMemo(
     () => notes.find((note) => note.id === selectedNoteId) ?? null,
@@ -24,8 +28,8 @@ export function NotesApp() {
   const updateNote = useUpdateNote();
   const deleteNote = useDeleteNote();
 
-//   const isSaving =
-//     createNote.isMutating || updateNote.isMutating || deleteNote.isMutating;
+  const isSaving =
+    createNote.isPending || updateNote.isPending || deleteNote.isPending;
 
   function handleSubmit(payload: { title: string; content: string }) {
     if (selectedNote) {
@@ -35,6 +39,7 @@ export function NotesApp() {
     }
 
     setSelectedNoteId(null);
+    setOpenDialog(false);
   }
 
   function handleDelete() {
@@ -51,22 +56,16 @@ export function NotesApp() {
 
   function handleCreateClick() {
     setSelectedNoteId(null);
+    setOpenDialog(true);
   }
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-sm font-medium uppercase tracking-[0.24em] text-muted-foreground">
-            Note app
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className=" text-3xl font-semibold tracking-tight text-foreground">
             Your notes
           </h1>
-          <p className="max-w-2xl pt-2 text-sm text-muted-foreground">
-            Create, update, and delete personal notes with Supabase and TanStack
-            Query.
-          </p>
         </div>
 
         <button
@@ -74,19 +73,12 @@ export function NotesApp() {
           onClick={handleCreateClick}
           className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
         >
-          New note
+          Add Note
         </button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-        <section className="rounded-3xl border border-border bg-background p-4 shadow-sm">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Notes</h2>
-            <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-              {notes.length}
-            </span>
-          </div>
-
+      <div className="">
+        <section className="rounded-3xl bg-background shadow-sm">
           {isLoading ? (
             <div className="rounded-3xl border border-dashed border-border bg-muted p-8 text-center text-sm text-muted-foreground">
               Loading notes…
@@ -100,13 +92,13 @@ export function NotesApp() {
               No notes yet. Create one to get started.
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 ">
               {notes.map((note) => (
                 <button
                   key={note.id}
                   type="button"
-                  onClick={() => setSelectedNoteId(note.id)}
-                  className={`w-full rounded-3xl border px-4 py-3 text-left transition duration-150 ${
+                  onClick={() => router.push(`${protectedRoutes.NOTE}/${  String(note.id)}`)}
+                  className={`w-full cursor-pointer rounded-xl border px-4 py-3 text-left transition duration-150 ${
                     note.id === selectedNoteId
                       ? "border-primary bg-primary/5"
                       : "border-border bg-background hover:border-primary/70 hover:bg-primary/5"
@@ -129,29 +121,15 @@ export function NotesApp() {
           )}
         </section>
 
-        <section className="rounded-3xl border border-border bg-background p-4 shadow-sm">
-          <div className="mb-6 flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold">
-                {selectedNote ? "Edit note" : "Create note"}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {selectedNote
-                  ? "Update or delete the selected note."
-                  : "Start with a title and some content."}
-              </p>
-            </div>
-          </div>
-
-          <NoteForm
-            key={selectedNote?.id ?? "new"}
-            note={selectedNote}
-            // isSaving={isSaving}
-            onSubmit={handleSubmit}
-            onDelete={selectedNote ? handleDelete : undefined}
-            onCancel={selectedNote ? () => setSelectedNoteId(null) : undefined}
-          />
-        </section>
+        <NoteForm
+          openDialog={openDialog}
+          key={selectedNote?.id ?? "new"}
+          note={selectedNote}
+          isSaving={isSaving}
+          onSubmit={handleSubmit}
+          onDelete={selectedNote ? handleDelete : undefined}
+          onCancel={() => setOpenDialog(false)}
+        />
       </div>
     </div>
   );
