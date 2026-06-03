@@ -96,10 +96,13 @@ export function useDeleteNote() {
       const { data, error } = await supabase
         .from(TABLE_KEYS.NOTES)
         .delete()
-        .eq("id", id);
+        .eq("id", id)
+        .select("id");
+
+      console.log("deleted rows", data);
 
       if (error) {
-        throw error;
+        throw new Error("Delete blocked — 0 rows removed (check RLS or id)");
       }
 
       return data;

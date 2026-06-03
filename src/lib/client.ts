@@ -1,9 +1,8 @@
-import { createBrowserClient } from '@supabase/ssr'
-import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'
+import { createBrowserClient } from "@supabase/ssr";
 
-export function createClient(cookieStore: ReadonlyRequestCookies) {
+export function createClient() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-  )
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+  );
 }

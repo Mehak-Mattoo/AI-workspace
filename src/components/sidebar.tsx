@@ -63,7 +63,7 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
   const initials = getInitials(name ?? "");
 
   async function handleSignOut() {
-    const supabase = createClient(undefined as any);
+    const supabase = createClient();
     await supabase.auth.signOut();
     router.push(authRoutes.LOGIN);
   }
