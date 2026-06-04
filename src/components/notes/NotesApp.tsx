@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import { NoteForm } from "@/components/notes/NoteForm";
 import {
   useCreateNote,
@@ -12,8 +13,9 @@ import {
 } from "@/hooks/useNotes";
 import { useNoteStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
-import { protectedRoutes } from "@/app/routes";
+import { apiRoutes, protectedRoutes } from "@/app/routes";
 import { supabase } from "@/lib/supabase";
+import { generateText } from "ai";
 
 export type { NoteFormPayload };
 
@@ -49,7 +51,6 @@ export function NotesApp() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
-
     try {
       if (selectedNote) {
         await updateNote.mutateAsync({ ...selectedNote, title, content });
@@ -75,7 +76,9 @@ export function NotesApp() {
       setOpenDialog(false);
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : "Failed to save note or attachment.",
+        err instanceof Error
+          ? err.message
+          : "Failed to save note or attachment.",
       );
     }
   }
@@ -97,6 +100,25 @@ export function NotesApp() {
     setSubmitError(null);
     setOpenDialog(true);
   }
+
+  async function handleGenerateText() {
+    const res = await fetch(apiRoutes.GENERATE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: "What is love?" }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error ?? "AI request failed");
+    }
+
+    const { text } = await res.json();
+    console.log(text);
+  }
+  // useEffect(() => {
+  //   handleGenerateText();
+  // }, []);
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">

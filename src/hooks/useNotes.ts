@@ -186,11 +186,11 @@ export function useUploadNoteAttachment() {
 }
 
 
-async function getAttachmentUrl(storagePath: string) {
-  const { data, error } = await supabase.storage
-    .from(BUCKET)
-    .createSignedUrl(storagePath, 60 * 60); // 1 hour
+// async function getAttachmentUrl(storagePath: string) {
+//   const { data, error } = await supabase.storage
+//     .from(BUCKET)
+//     .createSignedUrl(storagePath, 60 * 60); // 1 hour
 
-  if (error) throw error;
-  return data.signedUrl;
-}
+//   if (error) throw error;
+//   return data.signedUrl;
+// }

@@ -13,3 +13,7 @@ export const protectedRoutes = {
   PROFILE: "/profile",
   SETTINGS: "/settings",
 };
+
+export const apiRoutes = {
+  GENERATE: "/api/generate",
+};

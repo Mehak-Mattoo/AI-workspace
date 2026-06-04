@@ -9,6 +9,7 @@ import {
   useDeleteNote,
   useUploadNoteAttachment,
   type NoteFormPayload,
+  Note,
 } from "@/hooks/useNotes";
 import { supabase } from "@/lib/supabase";
 import { protectedRoutes } from "@/app/routes";
@@ -25,6 +26,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { useSummarizeNote } from "@/hooks/useSummarizeNote";
 
 export default function NoteDetailPage() {
   const params = useParams();
@@ -40,6 +42,8 @@ export default function NoteDetailPage() {
   const uploadAttachment = useUploadNoteAttachment();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [bulletPoints, setBulletPoints] = useState<string[] | null>(null);
 
   const note = notes?.find((n) => String(n.id) === noteId);
 
@@ -98,6 +102,8 @@ export default function NoteDetailPage() {
     }
   };
 
+  const handleSummarizeNote = useSummarizeNote();
+
   if (isError) {
     return (
       <div>
@@ -122,8 +128,7 @@ export default function NoteDetailPage() {
         href={protectedRoutes.HOME}
         className="flex items-center gap-2 text-sm text-muted-foreground"
       >
-
-        <ArrowLeft/>
+        <ArrowLeft />
         Back
       </Link>
 
@@ -226,6 +231,32 @@ export default function NoteDetailPage() {
         onSubmit={handleUpdateNote}
         onCancel={() => setOpenEditDialog(false)}
       />
+
+      {
+        <div className=" absolute bottom-5 right-5">
+          <Button
+            onClick={() => handleSummarizeNote.mutate(note)}
+            disabled={handleSummarizeNote.isPending}
+          >
+            {handleSummarizeNote.isPending ? "Summarizing..." : "Summarize"}
+          </Button>
+        </div>
+      }
+      {handleSummarizeNote.error && (
+        <p className="mt-4 text-sm text-destructive">
+          {handleSummarizeNote.error.message}
+        </p>
+      )}
+      {handleSummarizeNote.data && (
+        <div className="mt-4 space-y-2">
+          <p className="font-medium">{handleSummarizeNote.data.summary}</p>
+          <ul className="list-disc pl-5 text-sm text-muted-foreground">
+            {handleSummarizeNote.data.bulletPoints.map((point) => (
+              <li key={point}>{point}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
