@@ -1,12 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useNotes, useUpdateNote, useDeleteNote } from "@/hooks/useNotes";
+import {
+  useNotes,
+  useUpdateNote,
+  useDeleteNote,
+  useUploadNoteAttachment,
+  type NoteFormPayload,
+} from "@/hooks/useNotes";
+import { supabase } from "@/lib/supabase";
 import { protectedRoutes } from "@/app/routes";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash } from "lucide-react";
+import { ArrowLeft, Edit, Trash } from "lucide-react";
 import { NoteForm } from "@/components/notes/NoteForm";
 import {
   Dialog,
@@ -30,21 +37,65 @@ export default function NoteDetailPage() {
   const { data: notes = [], isLoading, isError } = useNotes();
   const updateNote = useUpdateNote();
   const deleteNote = useDeleteNote();
+  const uploadAttachment = useUploadNoteAttachment();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
 
   const note = notes?.find((n) => String(n.id) === noteId);
 
-  const handleUpdateNote = (payload: { title: string; content: string }) => {
+  useEffect(() => {
+    const storagePath = note?.attachment_path;
+    if (!storagePath) {
+      setAttachmentUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      const { data, error } = await supabase.storage
+        .from("note-attachments")
+        .createSignedUrl(storagePath, 3600);
+
+      if (!cancelled && !error && data?.signedUrl) {
+        setAttachmentUrl(data.signedUrl);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [note?.attachment_path]);
+
+  const handleUpdateNote = async (payload: NoteFormPayload) => {
     if (!note) return;
-    updateNote.mutate(
-      {
-        ...note,
-        title: payload.title,
-        content: payload.content,
-      },
-      {
-        onSuccess: () => setOpenEditDialog(false),
-      },
-    );
+    setSubmitError(null);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return;
+    }
+
+    try {
+      const { title, content, file } = payload;
+      await updateNote.mutateAsync({ ...note, title, content });
+      if (file) {
+        await uploadAttachment.mutateAsync({
+          file,
+          noteId: note.id,
+          userId: user.id,
+        });
+      }
+      setOpenEditDialog(false);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error
+          ? err.message
+          : "Failed to save note or attachment.",
+      );
+    }
   };
 
   if (isError) {
@@ -69,8 +120,10 @@ export default function NoteDetailPage() {
     <div className="mx-auto max-w-4xl px-4 py-6">
       <Link
         href={protectedRoutes.HOME}
-        className="text-sm text-muted-foreground"
+        className="flex items-center gap-2 text-sm text-muted-foreground"
       >
+
+        <ArrowLeft/>
         Back
       </Link>
 
@@ -96,6 +149,39 @@ export default function NoteDetailPage() {
       </div>
 
       <p className="mt-6 whitespace-pre-wrap">{note.content}</p>
+
+      {attachmentUrl && note.attachment_mime?.startsWith("image/") && (
+        <img
+          src={attachmentUrl}
+          alt={note.attachment_name ?? "Attachment"}
+          className="mt-4 max-h-96 rounded-lg border object-contain"
+        />
+      )}
+
+      {attachmentUrl && note.attachment_mime === "application/pdf" && (
+        <iframe
+          src={attachmentUrl}
+          title={note.attachment_name ?? "PDF preview"}
+          className="mt-4 h-96 w-full rounded-lg border"
+        />
+      )}
+
+      {attachmentUrl && (
+        <a
+          href={attachmentUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-block text-sm underline"
+        >
+          Open {note.attachment_name}
+        </a>
+      )}
+
+      {submitError && (
+        <p className="mt-4 text-sm text-destructive" role="alert">
+          {submitError}
+        </p>
+      )}
 
       {openDeleteDialog && (
         <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
@@ -136,7 +222,7 @@ export default function NoteDetailPage() {
         key={String(note.id)}
         openDialog={openEditDialog}
         note={note}
-        isSaving={updateNote.isPending}
+        isSaving={updateNote.isPending || uploadAttachment.isPending}
         onSubmit={handleUpdateNote}
         onCancel={() => setOpenEditDialog(false)}
       />

@@ -7,11 +7,15 @@ import {
   useDeleteNote,
   useNotes,
   useUpdateNote,
-  type Note,
+  useUploadNoteAttachment,
+  type NoteFormPayload,
 } from "@/hooks/useNotes";
 import { useNoteStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { protectedRoutes } from "@/app/routes";
+import { supabase } from "@/lib/supabase";
+
+export type { NoteFormPayload };
 
 export function NotesApp() {
   const { data: notes = [], isLoading, isError, error } = useNotes();
@@ -27,19 +31,53 @@ export function NotesApp() {
   const createNote = useCreateNote();
   const updateNote = useUpdateNote();
   const deleteNote = useDeleteNote();
+  const uploadAttachment = useUploadNoteAttachment();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const isSaving =
-    createNote.isPending || updateNote.isPending || deleteNote.isPending;
+    createNote.isPending ||
+    updateNote.isPending ||
+    deleteNote.isPending ||
+    uploadAttachment.isPending;
 
-  function handleSubmit(payload: { title: string; content: string }) {
-    if (selectedNote) {
-      updateNote.mutate({ ...selectedNote, ...payload });
-    } else {
-      createNote.mutate(payload);
+  async function handleSubmit(payload: NoteFormPayload) {
+    const { title, content, file } = payload;
+    setSubmitError(null);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+
+    try {
+      if (selectedNote) {
+        await updateNote.mutateAsync({ ...selectedNote, title, content });
+        if (file) {
+          await uploadAttachment.mutateAsync({
+            file,
+            noteId: selectedNote.id,
+            userId: user.id,
+          });
+        }
+      } else {
+        const created = await createNote.mutateAsync({ title, content });
+        if (file) {
+          await uploadAttachment.mutateAsync({
+            file,
+            noteId: created?.[0]?.id,
+            userId: user.id,
+          });
+        }
+      }
+
+      setSelectedNoteId(null);
+      setOpenDialog(false);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Failed to save note or attachment.",
+      );
     }
-
-    setSelectedNoteId(null);
-    setOpenDialog(false);
   }
 
   function handleDelete() {
@@ -56,6 +94,7 @@ export function NotesApp() {
 
   function handleCreateClick() {
     setSelectedNoteId(null);
+    setSubmitError(null);
     setOpenDialog(true);
   }
 
@@ -71,7 +110,7 @@ export function NotesApp() {
         <button
           type="button"
           onClick={handleCreateClick}
-          className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+          className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground cursor-pointer transition hover:bg-primary/90"
         >
           Add Note
         </button>
@@ -97,7 +136,9 @@ export function NotesApp() {
                 <button
                   key={note.id}
                   type="button"
-                  onClick={() => router.push(`${protectedRoutes.NOTE}/${  String(note.id)}`)}
+                  onClick={() =>
+                    router.push(`${protectedRoutes.NOTE}/${String(note.id)}`)
+                  }
                   className={`w-full cursor-pointer rounded-xl border px-4 py-3 text-left transition duration-150 ${
                     note.id === selectedNoteId
                       ? "border-primary bg-primary/5"
@@ -128,7 +169,10 @@ export function NotesApp() {
           isSaving={isSaving}
           onSubmit={handleSubmit}
           onDelete={selectedNote ? handleDelete : undefined}
-          onCancel={() => setOpenDialog(false)}
+          onCancel={() => {
+            setSubmitError(null);
+            setOpenDialog(false);
+          }}
         />
       </div>
     </div>
