@@ -1,27 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React from "react";
+import { useMemo, useState } from "react";
 
-import { NoteForm } from "@/components/notes/NoteForm";
-import {
-  useCreateNote,
-  useDeleteNote,
-  useNotes,
-  useUpdateNote,
-  useUploadNoteAttachment,
-  type NoteFormPayload,
-} from "@/hooks/useNotes";
+import { NoteForm } from "@/components/helpers/NoteForm";
+
 import { useNoteStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
-import { apiRoutes, protectedRoutes } from "@/app/routes";
+import { protectedRoutes } from "@/app/routes";
 import { supabase } from "@/lib/supabase";
-import { generateText } from "ai";
 import { Button } from "../ui/button";
-
-export type { NoteFormPayload };
-
-export function NotesApp() {
-  const { data: notes = [], isLoading, isError, error } = useNotes();
+import {
+  useCreateNote,
+  useUpdateNote,
+  useDeleteNote,
+  useUploadNoteAttachment,
+  type NoteFormPayload,
+  useNotes,
+} from "@/hooks/useNotes";
+const Homepage = () => {
+      const { data: notes = [], isLoading, isError, error } = useNotes();
   const { selectedNoteId, setSelectedNoteId } = useNoteStore();
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
@@ -101,7 +99,6 @@ export function NotesApp() {
     setSubmitError(null);
     setOpenDialog(true);
   }
-
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -175,4 +172,6 @@ export function NotesApp() {
       </>
     </div>
   );
-}
+};
+
+export default Homepage;

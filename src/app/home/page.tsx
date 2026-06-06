@@ -1,5 +1,5 @@
-import { NotesApp } from "@/components/notes/NotesApp";
+import Homepage from "@/components/helpers/Homepage";
 
 export default async function Home() {
-  return <NotesApp />;
+  return <Homepage />;
 }

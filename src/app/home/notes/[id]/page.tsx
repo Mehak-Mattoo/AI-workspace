@@ -15,7 +15,7 @@ import { supabase } from "@/lib/supabase";
 import { protectedRoutes } from "@/app/routes";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Trash } from "lucide-react";
-import { NoteForm } from "@/components/notes/NoteForm";
+import { NoteForm } from "@/components/helpers/NoteForm";
 import {
   Dialog,
   DialogDescription,
@@ -120,7 +120,6 @@ export default function NoteDetailPage() {
     summarizeMutation.mutate(note);
   }
 
-  
   if (isError) {
     return (
       <div>
