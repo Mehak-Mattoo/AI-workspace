@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
+import { protectedRoutes } from "./routes";
 
 export default function Page() {
-  redirect("/home");
+  redirect(protectedRoutes.HOME);
 }

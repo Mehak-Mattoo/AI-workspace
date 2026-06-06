@@ -34,7 +34,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/client";
-import { authRoutes } from "@/app/routes";
+import { authRoutes, protectedRoutes } from "@/app/routes";
+import { getInitials } from "@/lib/constants/constants";
 
 const navItems = [
   { label: "Home", icon: Home, href: "/" },
@@ -42,15 +43,6 @@ const navItems = [
   { label: "Notifications", icon: Bell, href: "/notifications" },
   { label: "Settings", icon: Settings, href: "/settings" },
 ];
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
 
 interface AppSidebarProps {
   email: string;
@@ -135,7 +127,7 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
 
                 <DropdownMenuItem asChild>
                   <a
-                    href="/profile"
+                    href={protectedRoutes.PROFILE}
                     className="flex items-center gap-2 cursor-pointer"
                   >
                     <User className="size-4" />

@@ -1,10 +1,12 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useState } from 'react'
 
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/client'
+import { protectedRoutes } from '@/app/routes'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -32,7 +34,7 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
       const { error } = await supabase.auth.updateUser({ password })
       if (error) throw error
       // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push('/protected')
+      router.push(protectedRoutes.PROFILE);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
@@ -65,6 +67,11 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Saving...' : 'Save new password'}
               </Button>
+              <p className="text-center text-sm text-muted-foreground">
+                <Link href={protectedRoutes.PROFILE} className="underline underline-offset-4">
+                  Back to profile
+                </Link>
+              </p>
             </div>
           </form>
         </CardContent>
