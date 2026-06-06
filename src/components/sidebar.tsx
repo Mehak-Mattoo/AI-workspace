@@ -12,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -39,7 +40,7 @@ import { getInitials } from "@/lib/constants/constants";
 
 const navItems = [
   { label: "Home", icon: Home, href: "/" },
-  { label: "Projects", icon: FolderOpen, href: "/projects" },
+  { label: "My Notes", icon: FolderOpen, href: "/home/mynotes" },
   { label: "Notifications", icon: Bell, href: "/notifications" },
   { label: "Settings", icon: Settings, href: "/settings" },
 ];
@@ -53,7 +54,7 @@ interface AppSidebarProps {
 export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
   const router = useRouter();
   const initials = getInitials(name ?? "");
-
+  const { isMobile, setOpen } = useSidebar();
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -61,7 +62,15 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
   }
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar
+      collapsible="icon"
+      onMouseEnter={() => {
+        if (!isMobile) setOpen(true);
+      }}
+      onMouseLeave={() => {
+        if (!isMobile) setOpen(false);
+      }}
+    >
       <SidebarHeader />
 
       <SidebarContent>
@@ -72,8 +81,8 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
                 <SidebarMenuItem key={label}>
                   <SidebarMenuButton asChild tooltip={label}>
                     <a href={href}>
-                      <Icon />
-                      <span>{label}</span>
+                      <Icon className="w-5 h-5" />
+                      <h6>{label}</h6>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -95,7 +104,7 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
                       {initials}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
+                  <div className="flex flex-col gap-1 flex-1 text-left">
                     <span className="truncate font-semibold">{name}</span>
                     <span className="truncate text-xs text-muted-foreground">
                       {email}
@@ -106,25 +115,6 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
               </DropdownMenuTrigger>
 
               <DropdownMenuContent side="top" align="end" className="w-56">
-                <DropdownMenuLabel className="p-0 font-normal">
-                  <div className="flex items-center gap-2 px-2 py-2">
-                    <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src={avatar} alt={name} />
-                      <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="grid text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{name}</span>
-                      <span className="truncate text-xs text-muted-foreground">
-                        {email}
-                      </span>
-                    </div>
-                  </div>
-                </DropdownMenuLabel>
-
-                <DropdownMenuSeparator />
-
                 <DropdownMenuItem asChild>
                   <a
                     href={protectedRoutes.PROFILE}

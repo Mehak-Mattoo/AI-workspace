@@ -2,8 +2,7 @@ import { AppSidebar } from "@/components/sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createClient } from "@/lib/server";
 import { authRoutes } from "../routes";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { getProfileFromClaims } from "@/lib/profileUtils";
+import { getProfileFromUser } from "@/lib/profileUtils";
 import { redirect } from "next/navigation";
 
 export default async function Layout({
@@ -13,12 +12,12 @@ export default async function Layout({
 }) {
   const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.getClaims();
-  if (error || !data?.claims?.email) {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data?.user?.email) {
     redirect(authRoutes.LOGIN);
   }
 
-  const profile = getProfileFromClaims(data.claims);
+  const profile = getProfileFromUser(data.user);
 
   return (
     <div className="w-full">
@@ -29,9 +28,7 @@ export default async function Layout({
           avatar={profile.avatar}
         />
         <main className="flex flex-col flex-1 w-full ">
-          <div className="flex w-full items-center border-b">
-            <SidebarTrigger />
-          </div>
+          <SidebarTrigger className="md:hidden" />
           {children}
         </main>
       </SidebarProvider>
