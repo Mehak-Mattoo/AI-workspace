@@ -1,13 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupAction,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -18,31 +17,29 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Plus,
   Home,
   Settings,
-  FolderOpen,
   Bell,
   ChevronUp,
   User,
   LogOut,
+  StickyNote,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/client";
 import { authRoutes, protectedRoutes } from "@/app/routes";
 import { getInitials } from "@/lib/constants/constants";
+import { Suspense } from "react";
+import { SidebarFolders } from "@/components/sidebar/SidebarFolders";
 
 const navItems = [
-  { label: "Home", icon: Home, href: "/" },
-  { label: "My Notes", icon: FolderOpen, href: "/home/mynotes" },
-  { label: "Notifications", icon: Bell, href: "/notifications" },
-  { label: "Settings", icon: Settings, href: "/settings" },
+  { label: "Home", icon: Home, href: protectedRoutes.HOME },
+  { label: "All notes", icon: StickyNote, href: protectedRoutes.MY_NOTES },
 ];
 
 interface AppSidebarProps {
@@ -55,6 +52,7 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
   const router = useRouter();
   const initials = getInitials(name ?? "");
   const { isMobile, setOpen } = useSidebar();
+
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -64,12 +62,12 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
   return (
     <Sidebar
       collapsible="icon"
-      onMouseEnter={() => {
-        if (!isMobile) setOpen(true);
-      }}
-      onMouseLeave={() => {
-        if (!isMobile) setOpen(false);
-      }}
+      // onMouseEnter={() => {
+      //   if (!isMobile) setOpen(true);
+      // }}
+      // onMouseLeave={() => {
+      //   if (!isMobile) setOpen(false);
+      // }}
     >
       <SidebarHeader />
 
@@ -80,16 +78,20 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
               {navItems.map(({ label, icon: Icon, href }) => (
                 <SidebarMenuItem key={label}>
                   <SidebarMenuButton asChild tooltip={label}>
-                    <a href={href}>
-                      <Icon className="w-5 h-5" />
-                      <h6>{label}</h6>
-                    </a>
+                    <Link href={href}>
+                      <Icon className="size-4" />
+                      <span>{label}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <Suspense fallback={null}>
+          <SidebarFolders />
+        </Suspense>
       </SidebarContent>
 
       <SidebarFooter>
@@ -104,7 +106,7 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
                       {initials}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex flex-col gap-1 flex-1 text-left">
+                  <div className="flex flex-1 flex-col gap-1 text-left">
                     <span className="truncate font-semibold">{name}</span>
                     <span className="truncate text-xs text-muted-foreground">
                       {email}
@@ -116,19 +118,19 @@ export function AppSidebar({ email, name, avatar }: AppSidebarProps) {
 
               <DropdownMenuContent side="top" align="end" className="w-56">
                 <DropdownMenuItem asChild>
-                  <a
+                  <Link
                     href={protectedRoutes.PROFILE}
-                    className="flex items-center gap-2 cursor-pointer"
+                    className="flex cursor-pointer items-center gap-2"
                   >
                     <User className="size-4" />
                     View Profile
-                  </a>
+                  </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem
-                  className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
+                  className="flex cursor-pointer items-center gap-2 text-destructive focus:text-destructive"
                   onClick={handleSignOut}
                 >
                   <LogOut className="size-4" />

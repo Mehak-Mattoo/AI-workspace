@@ -1,5 +1,6 @@
 export const TABLE_KEYS = {
   NOTES: "notes",
+  FOLDERS: "folders",
 };
 
 export const LUNA = "Luna";

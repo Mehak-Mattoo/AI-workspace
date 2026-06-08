@@ -1,18 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   useNotes,
   useUpdateNote,
   useDeleteNote,
   useUploadNoteAttachment,
   type NoteFormPayload,
-  Note,
 } from "@/hooks/useNotes";
 import { supabase } from "@/lib/supabase";
-import { protectedRoutes } from "@/app/routes";
+import { myNotesPath, notePath, protectedRoutes } from "@/app/routes";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Trash } from "lucide-react";
 import { NoteForm } from "@/components/helpers/NoteForm";
@@ -22,7 +21,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -32,13 +30,15 @@ import {
   summarizeButtonLabel,
 } from "@/components/SummarizeDrawer";
 import { NoteChatPanel } from "@/components/NoteChatPanel";
-import { BUCKET } from "@/lib/constants/constants";
-import { LUNA } from "@/lib/constants/constants";
+import { BUCKET, LUNA } from "@/lib/constants/constants";
 
-export default function NoteDetailPage() {
-  const params = useParams();
+type NoteDetailPageProps = {
+  noteId: string;
+  folderId?: string;
+};
+
+export function NoteDetailPage({ noteId, folderId }: NoteDetailPageProps) {
   const router = useRouter();
-  const noteId = params.id as string;
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -60,6 +60,26 @@ export default function NoteDetailPage() {
     setSummaryDrawerOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reset when navigating to another note
   }, [noteId]);
+
+  useEffect(() => {
+    if (!note) return;
+
+    const canonical = notePath(note);
+    const currentPath =
+      typeof window !== "undefined" ? window.location.pathname : "";
+
+    if (currentPath !== canonical) {
+      router.replace(canonical);
+    }
+  }, [note, router]);
+
+  useEffect(() => {
+    if (!note || folderId === undefined) return;
+
+    if (note.folder_id !== folderId) {
+      router.replace(notePath(note));
+    }
+  }, [note, folderId, router]);
 
   useEffect(() => {
     const storagePath = note?.attachment_path;
@@ -92,13 +112,11 @@ export default function NoteDetailPage() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) {
-      return;
-    }
+    if (!user) return;
 
     try {
       const { title, content, file } = payload;
-      await updateNote.mutateAsync({ ...note, title, content });
+      const updated = await updateNote.mutateAsync({ ...note, title, content });
       if (file) {
         await uploadAttachment.mutateAsync({
           file,
@@ -106,8 +124,11 @@ export default function NoteDetailPage() {
           userId: user.id,
         });
       }
+
+      const saved = updated?.[0] ?? { ...note, title, content };
       setOpenEditDialog(false);
-    } catch (err) {
+      router.replace(notePath(saved));
+    } catch {
       setSubmitError("Failed to save note or attachment.");
     }
   };
@@ -120,35 +141,45 @@ export default function NoteDetailPage() {
     summarizeMutation.mutate(note);
   }
 
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-6 text-muted-foreground">
+        Loading note…
+      </div>
+    );
+  }
+
   if (isError) {
     return (
-      <div>
+      <div className="mx-auto max-w-4xl px-4 py-6">
         <p>Failed to load notes.</p>
-        <Link href={protectedRoutes.HOME}>Back</Link>
+        <Link href={protectedRoutes.MY_NOTES}>Back</Link>
       </div>
     );
   }
 
   if (!note) {
     return (
-      <div>
+      <div className="mx-auto max-w-4xl px-4 py-6">
         <p>Note not found.</p>
-        <Link href={protectedRoutes.HOME}>Back</Link>
+        <Link href={protectedRoutes.MY_NOTES}>Back</Link>
       </div>
     );
   }
 
+  const backHref = myNotesPath(note.folder_id);
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
       <Link
-        href={protectedRoutes.HOME}
-        className="flex items-center gap-2 text-lg mb-6 text-muted-foreground"
+        href={backHref}
+        className="mb-6 flex items-center gap-2 text-lg text-muted-foreground"
       >
         <ArrowLeft />
         Back
       </Link>
 
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="mt-4 font-semibold">{note.title}</h1>
           <p className="mt-1 text-muted-foreground">
@@ -179,18 +210,10 @@ export default function NoteDetailPage() {
         />
       )}
 
-      {/* {attachmentUrl && note.attachment_mime === "application/pdf" && (
-        <iframe
-          src={attachmentUrl}
-          title={note.attachment_name ?? "PDF preview"}
-          className="mt-4 h-96 w-full rounded-lg border"
-        />
-      )} */}
-
       {attachmentUrl && (
         <Button
           onClick={() => window.open(attachmentUrl, "_blank")}
-          className="mt-2 inline-block "
+          className="mt-2 inline-block"
         >
           Open {note.attachment_name}
         </Button>
@@ -225,7 +248,7 @@ export default function NoteDetailPage() {
                   deleteNote.mutate(String(note.id), {
                     onSuccess: () => {
                       setOpenDeleteDialog(false);
-                      router.push(protectedRoutes.HOME);
+                      router.push(myNotesPath(note.folder_id));
                     },
                   });
                 }}

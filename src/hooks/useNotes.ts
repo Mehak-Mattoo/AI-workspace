@@ -17,25 +17,36 @@ export interface Note {
   attachment_path: string | null;
   attachment_name: string | null;
   attachment_mime: string | null;
+  folder_id: string | null;
   created_at: string;
   updated_at: string | null;
 }
 
-const fetchNotes = async (): Promise<Note[]> => {
-  const { data, error } = await supabase
+export type NotesFilter = "all" | "uncategorized" | string;
+
+const fetchNotes = async (filter: NotesFilter = "all"): Promise<Note[]> => {
+  let query = supabase
     .from(TABLE_KEYS.NOTES)
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (filter === "uncategorized") {
+    query = query.is("folder_id", null);
+  } else if (filter !== "all") {
+    query = query.eq("folder_id", filter);
+  }
+
+  const { data, error } = await query;
   if (error) {
     throw error;
   }
   return data ?? [];
 };
 
-export function useNotes() {
+export function useNotes(filter: NotesFilter = "all") {
   return useQuery<Note[]>({
-    queryKey: [TABLE_KEYS.NOTES],
-    queryFn: fetchNotes,
+    queryKey: [TABLE_KEYS.NOTES, filter],
+    queryFn: () => fetchNotes(filter),
   });
 }
 
@@ -43,7 +54,11 @@ export function useCreateNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newNote: { title: string; content: string }) => {
+    mutationFn: async (newNote: {
+      title: string;
+      content: string;
+      folder_id?: string | null;
+    }) => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -56,7 +71,9 @@ export function useCreateNote() {
         .from(TABLE_KEYS.NOTES)
         .insert([
           {
-            ...newNote,
+            title: newNote.title,
+            content: newNote.content,
+            folder_id: newNote.folder_id ?? null,
             user_id: user.id,
           },
         ])
@@ -79,7 +96,11 @@ export function useUpdateNote() {
     mutationFn: async (note: Note) => {
       const { data, error } = await supabase
         .from(TABLE_KEYS.NOTES)
-        .update({ title: note.title, content: note.content })
+        .update({
+          title: note.title,
+          content: note.content,
+          folder_id: note.folder_id ?? null,
+        })
         .eq("id", note.id)
         .select();
 
