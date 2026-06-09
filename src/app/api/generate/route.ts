@@ -4,6 +4,7 @@ import {
   summarizeNoteForUser,
 } from "@/lib/summarizeNoteServer";
 import { createClient } from "@/lib/server";
+import { summarizeFolderForUser } from "@/lib/summarizeFolderServer";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -37,29 +38,41 @@ export async function POST(req: Request) {
     );
   }
 
-  let noteId: string | number;
-  try {
-    const body = await req.json();
-    noteId = body.noteId;
-    if (noteId === undefined || noteId === null || noteId === "") {
-      return Response.json({ error: "noteId is required" }, { status: 400 });
-    }
-  } catch {
-    return Response.json({ error: "Invalid request body" }, { status: 400 });
-  }
+ let body: { noteId?: string | number; folderId?: string };
+ try {
+   body = await req.json();
+ } catch {
+   return Response.json({ error: "Invalid request body" }, { status: 400 });
+ }
 
-  try {
-    const object = await summarizeNoteForUser(supabase, noteId, user.id);
-    return Response.json(object);
-  } catch (err) {
-    if (err instanceof SummarizeNoteError) {
-      return Response.json({ error: err.message }, { status: err.status });
-    }
+ try {
+   if (body.folderId) {
+     const object = await summarizeFolderForUser(
+       supabase,
+       body.folderId,
+       user.id,
+     );
+     return Response.json(object);
+   }
 
-    console.error("summarizeNoteForUser failed:", err);
-    return Response.json(
-      { error: err instanceof Error ? err.message : "AI request failed" },
-      { status: 500 },
-    );
-  }
+   if (body.noteId) {
+     const object = await summarizeNoteForUser(supabase, body.noteId, user.id);
+     return Response.json(object);
+   }
+
+   return Response.json(
+     { error: "noteId or folderId is required" },
+     { status: 400 },
+   );
+ } catch (err) {
+   if (err instanceof SummarizeNoteError) {
+     return Response.json({ error: err.message }, { status: err.status });
+   }
+
+   console.error("summarize failed:", err);
+   return Response.json(
+     { error: err instanceof Error ? err.message : "AI request failed" },
+     { status: 500 },
+   );
+ }
 }

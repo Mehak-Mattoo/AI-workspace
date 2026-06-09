@@ -18,6 +18,8 @@ import {
   type NotesFilter,
 } from "@/hooks/useNotes";
 import { useFolders } from "@/hooks/useFolders";
+import { useSummarizeFolder } from "@/hooks/useSummarizeFolder";
+import { SummarizeDrawer } from "../SummarizeDrawer";
 
 const NotesPage = () => {
   const router = useRouter();
@@ -33,6 +35,7 @@ const NotesPage = () => {
 
   const { selectedNoteId, setSelectedNoteId } = useNoteStore();
   const [openDialog, setOpenDialog] = useState(false);
+  const [summaryDrawerOpen, setSummaryDrawerOpen] = useState(false);
 
   const selectedNote = useMemo(
     () => notes.find((note) => note.id === selectedNoteId) ?? null,
@@ -124,6 +127,16 @@ const NotesPage = () => {
     setOpenDialog(true);
   }
 
+
+  const summarizeFolder = useSummarizeFolder();
+
+  function handleSummarizeFolder() {
+    if (!activeFolder) return;
+    summarizeFolder.reset();
+    setSummaryDrawerOpen(true);
+    summarizeFolder.mutate(activeFolder.id);
+  }
+
   const heading = activeFolder ? `${activeFolder.name}` : "Your notes";
 
   const subheading = activeFolder ? "Notes in this folder" : "All your notes";
@@ -201,6 +214,32 @@ const NotesPage = () => {
           }
         }}
       />
+
+      <div className="flex gap-2">
+        {activeFolder && notes.length > 0 && (
+          <Button
+            variant="outline"
+            onClick={handleSummarizeFolder}
+            disabled={summarizeFolder.isPending}
+            size="lg"
+          >
+            {summarizeFolder.isPending ? "Summarizing..." : "Summarize folder"}
+          </Button>
+        )}
+
+      
+      </div>
+
+      {activeFolder && (
+        <SummarizeDrawer
+          title={activeFolder.name}
+          open={summaryDrawerOpen}
+          onOpenChange={setSummaryDrawerOpen}
+          summary={summarizeFolder.data}
+          error={summarizeFolder.error?.message ?? null}
+          isPending={summarizeFolder.isPending}
+        />
+      )}
     </div>
   );
 };

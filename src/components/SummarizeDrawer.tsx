@@ -14,7 +14,7 @@ import {
 import { Button } from "./ui/button";
 
 export type SummarizeDrawerProps = {
-  note: Note;
+  title?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   summary: NoteSummary | undefined;
@@ -29,7 +29,7 @@ function summarizeButtonLabel(note: Note, isPending: boolean) {
 }
 
 export function SummarizeDrawer({
-  note,
+  title,
   open,
   onOpenChange,
   summary,
@@ -40,7 +40,7 @@ export function SummarizeDrawer({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
         <DrawerHeader>
-          {/* <DrawerTitle>Summary — {note.title}</DrawerTitle> */}
+          <DrawerTitle>Summary — {title}</DrawerTitle>
           <DrawerDescription asChild>
             <div className="space-y-4 text-left">
               {isPending && (

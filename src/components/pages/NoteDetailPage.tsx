@@ -287,7 +287,7 @@ export function NoteDetailPage({ noteId, folderId }: NoteDetailPageProps) {
       <NoteChatPanel note={note} open={chatOpen} onOpenChange={setChatOpen} />
 
       <SummarizeDrawer
-        note={note}
+        title={note.title}
         open={summaryDrawerOpen}
         onOpenChange={setSummaryDrawerOpen}
         summary={summarizeMutation.data}
