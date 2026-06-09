@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { TABLE_KEYS } from "@/lib/constants/constants";
-import { BUCKET } from "@/lib/constants/constants";
+import { TABLE_KEYS } from "@/components/helpers/constants";
+import { BUCKET } from "@/components/helpers/constants";
 
 export type NoteFormPayload = {
   title: string;

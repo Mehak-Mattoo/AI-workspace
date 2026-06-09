@@ -2,7 +2,7 @@ import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { noteSummarySchema, type NoteSummary } from "@/lib/schema/noteSummary";
-import { MODEL_NAME, TABLE_KEYS } from "@/lib/constants/constants";
+import { MODEL_NAME, TABLE_KEYS } from "@/components/helpers/constants";
 import { SummarizeNoteError } from "@/lib/summarizeNoteServer";
 
 const MAX_NOTE_CHARS = 2000;

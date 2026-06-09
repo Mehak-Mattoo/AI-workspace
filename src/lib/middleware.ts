@@ -1,4 +1,4 @@
-import { authRoutes } from "@/app/routes";
+import { authRoutes } from "@/components/helpers/routes";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 

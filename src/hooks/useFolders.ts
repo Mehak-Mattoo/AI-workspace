@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { TABLE_KEYS } from "@/lib/constants/constants";
+import { TABLE_KEYS } from "@/components/helpers/constants";
 
 export interface Folder {
   id: string;
@@ -32,7 +32,9 @@ export const useCreateFolder = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newFolder: { name: string }) => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
       const { data, error } = await supabase
         .from(TABLE_KEYS.FOLDERS)

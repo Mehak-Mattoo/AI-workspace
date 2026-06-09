@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { apiRoutes } from "@/app/routes";
+import { apiRoutes } from "@/components/helpers/routes";
 
 class ChatRequestError extends Error {
   status: number;

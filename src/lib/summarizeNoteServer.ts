@@ -2,7 +2,7 @@ import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { noteSummarySchema, type NoteSummary } from "@/lib/schema/noteSummary";
-import { BUCKET, MODEL_NAME } from "./constants/constants";
+import { BUCKET, MODEL_NAME } from "../components/helpers/constants";
 import { Note } from "@/hooks/useNotes";
 
 const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -76,7 +76,7 @@ Read the attached PDF ("${attachment.name}") and combine it with the note conten
     return `Summarize this note titled "${note.title}".
 
 User-written content:
-${note.content }
+${note.content}
 
 Read the attached image ("${attachment.name}") and combine it with the note content into one coherent summary with about 3 bullet points.`;
   }

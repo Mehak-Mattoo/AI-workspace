@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { Input } from "./ui/input";
 import { ArrowUp, Loader2 } from "lucide-react";
-import { LUNA } from "@/lib/constants/constants";
+import { LUNA } from "@/components/helpers/constants";
 
 export type NoteChatPanelProps = {
   note: Note;

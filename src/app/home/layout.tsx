@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/components/sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createClient } from "@/lib/server";
-import { authRoutes } from "../routes";
+import { authRoutes } from "../../components/helpers/routes";
 import { getProfileFromUser } from "@/lib/profileUtils";
 import { redirect } from "next/navigation";
 

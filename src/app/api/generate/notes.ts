@@ -1,5 +1,5 @@
 import { Note } from "@/hooks/useNotes";
-import { apiRoutes } from "@/app/routes";
+import { apiRoutes } from "@/components/helpers/routes";
 
 export async function handleSummarizeNote(note: Note) {
   const res = await fetch(apiRoutes.GENERATE, {

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { apiRoutes } from "@/app/routes";
+import { apiRoutes } from "@/components/helpers/routes";
 import { noteSummarySchema, type NoteSummary } from "@/lib/schema/noteSummary";
 
 export type { NoteSummary };

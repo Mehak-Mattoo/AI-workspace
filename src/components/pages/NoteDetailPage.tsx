@@ -11,7 +11,11 @@ import {
   type NoteFormPayload,
 } from "@/hooks/useNotes";
 import { supabase } from "@/lib/supabase";
-import { myNotesPath, notePath, protectedRoutes } from "@/app/routes";
+import {
+  myNotesPath,
+  notePath,
+  protectedRoutes,
+} from "@/components/helpers/routes";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Trash } from "lucide-react";
 import { NoteForm } from "@/components/pages/NoteForm";
@@ -29,7 +33,7 @@ import { useSummarizeFolder } from "@/hooks/useSummarizeFolder";
 import { useFolders } from "@/hooks/useFolders";
 import { SummarizeDrawer } from "@/components/SummarizeDrawer";
 import { NoteChatPanel } from "@/components/NoteChatPanel";
-import { BUCKET } from "@/lib/constants/constants";
+import { BUCKET } from "@/components/helpers/constants";
 import { Skeleton } from "../ui/skeleton";
 import { LunaButton, type LunaActionOption } from "../ui/LunaButton";
 

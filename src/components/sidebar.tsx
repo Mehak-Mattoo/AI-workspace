@@ -32,8 +32,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/client";
-import { authRoutes, protectedRoutes } from "@/app/routes";
-import { getInitials } from "@/lib/constants/constants";
+import { authRoutes, protectedRoutes } from "@/components/helpers/routes";
+import { getInitials } from "@/components/helpers/constants";
 import { Suspense } from "react";
 import { SidebarFolders } from "@/components/sidebar/SidebarFolders";
 

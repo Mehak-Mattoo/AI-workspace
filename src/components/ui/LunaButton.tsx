@@ -8,7 +8,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { LUNA } from "@/lib/constants/constants";
+import { LUNA } from "@/components/helpers/constants";
 import { cn } from "@/lib/utils";
 
 export type LunaActionOption = {
@@ -27,8 +27,7 @@ export function LunaButton({ options, isBusy = false }: LunaButtonProps) {
   return (
     <HoverCard openDelay={80} closeDelay={120}>
       <HoverCardTrigger asChild>
-        <Button size="lg" disabled={isBusy} className="gap-2">
-          <Sparkles className="size-4" />
+        <Button size="lg" disabled={isBusy} className="gap-2 rounded-full">
           {LUNA}
         </Button>
       </HoverCardTrigger>

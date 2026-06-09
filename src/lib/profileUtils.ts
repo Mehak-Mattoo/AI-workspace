@@ -1,4 +1,4 @@
-import { AVATARS_BUCKET } from "@/lib/constants/constants";
+import { AVATARS_BUCKET } from "@/components/helpers/constants";
 import type { User } from "@supabase/supabase-js";
 
 type Claims = Record<string, unknown>;

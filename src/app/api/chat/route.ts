@@ -1,8 +1,4 @@
-import {
-  convertToModelMessages,
-  streamText,
-  type UIMessage,
-} from "ai";
+import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { google } from "@ai-sdk/google";
 import { aiRateLimit } from "@/lib/rateLimit/rateLimit";
 import {
@@ -11,7 +7,7 @@ import {
   NoteContextError,
 } from "@/lib/noteContextServer";
 import { createClient } from "@/lib/server";
-import { MODEL_NAME } from "@/lib/constants/constants";
+import { MODEL_NAME } from "@/components/helpers/constants";
 
 export async function POST(req: Request) {
   const supabase = await createClient();

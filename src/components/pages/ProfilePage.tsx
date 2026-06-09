@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Camera, KeyRound } from "lucide-react";
 
-import { authRoutes } from "@/app/routes";
+import { authRoutes } from "@/components/helpers/routes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/client";
-import { getInitials } from "@/lib/constants/constants";
+import { getInitials } from "@/components/helpers/constants";
 import { getProfileFromUser, uploadAvatar } from "@/lib/profileUtils";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";

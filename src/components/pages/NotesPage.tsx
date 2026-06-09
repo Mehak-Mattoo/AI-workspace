@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { NoteForm } from "@/components/pages/NoteForm";
 import { useNoteStore } from "@/lib/store";
-import { notePath, protectedRoutes } from "@/app/routes";
+import { notePath, protectedRoutes } from "@/components/helpers/routes";
 import { supabase } from "@/lib/supabase";
 import { Button } from "../ui/button";
 import {

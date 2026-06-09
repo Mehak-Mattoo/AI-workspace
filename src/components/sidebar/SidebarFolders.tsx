@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { notePath, protectedRoutes } from "@/app/routes";
+import { notePath, protectedRoutes } from "@/components/helpers/routes";
 import { NewFolder } from "@/components/modals/NewFolder";
 import {
   DropdownMenu,
