@@ -3,15 +3,21 @@
 import {
   Sidebar,
   SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 
 import { Suspense } from "react";
 import { SidebarFolders } from "@/components/helpers/SidebarFolders";
+import { PanelLeft, PanelLeftClose, PlusCircle, Search } from "lucide-react";
 
 export function AppSidebar() {
-  const { isMobile, setOpen } = useSidebar();
+  const { isMobile, setOpen , open} = useSidebar();
 
   return (
     <Sidebar
@@ -23,7 +29,31 @@ export function AppSidebar() {
       //   if (!isMobile) setOpen(false);
       // }}
     >
-      <SidebarHeader />
+      <SidebarMenuButton className="justify-end ">
+        <PanelLeft
+          className="size-5 text-primary"
+          onClick={() => setOpen(!open)}
+        />
+      </SidebarMenuButton>
+      <SidebarGroup>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem className="flex justify-between gap-2">
+              <SidebarMenuButton>
+                <PlusCircle className="size-5 text-primary" />
+                <h6>New Note</h6>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <Search className="size-5 text-primary" />
+                <h6>Search</h6>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
 
       <SidebarContent>
         <Suspense fallback={null}>

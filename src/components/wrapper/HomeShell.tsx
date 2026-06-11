@@ -17,7 +17,7 @@ export function HomeShell({ children }: { children: ReactNode }) {
       <NoteNavbarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/60 sm:px-6 lg:px-8">
+          <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/60 sm:px-6 lg:px-8">
             <SidebarTrigger className="md:hidden" />
             <AppNavbar />
           </header>
