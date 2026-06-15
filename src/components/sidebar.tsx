@@ -12,14 +12,17 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { SidebarFolders } from "@/components/helpers/SidebarFolders";
 import { PanelLeft, PanelLeftClose, PlusCircle, Search } from "lucide-react";
+import SearchModal from "./modals/SearchModal";
 
 export function AppSidebar() {
-  const { isMobile, setOpen , open} = useSidebar();
+  const { isMobile, setOpen, open } = useSidebar();
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   return (
+    <>
     <Sidebar
       collapsible="icon"
       // onMouseEnter={() => {
@@ -46,8 +49,8 @@ export function AppSidebar() {
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton>
-                <Search className="size-5 text-primary" />
+              <SidebarMenuButton onClick={() => setSearchModalOpen(true)}>
+                <Search className="size-5 text-tertiary" />
                 <h6>Search</h6>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -61,5 +64,7 @@ export function AppSidebar() {
         </Suspense>
       </SidebarContent>
     </Sidebar>
+    <SearchModal open={searchModalOpen} onOpenChange={setSearchModalOpen} />
+    </>
   );
 }

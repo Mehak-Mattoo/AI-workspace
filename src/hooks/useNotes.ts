@@ -45,6 +45,18 @@ const fetchNotes = async (filter: NotesFilter = "all"): Promise<Note[]> => {
   return data ?? [];
 };
 
+const searchNotesWithinNotes = async (query: string) => {
+  const { data, error } = await supabase
+    .from(TABLE_KEYS.NOTES)
+    .select("*")
+    .or(`title.ilike.%${query}%,content.ilike.%${query}%`);
+  
+  if (error) {
+    throw error;
+  }
+  return data;
+};
+
 export function useNotes(filter: NotesFilter = "all") {
   return useQuery<Note[]>({
     queryKey: [TABLE_KEYS.NOTES, filter],
@@ -208,3 +220,14 @@ export function useUploadNoteAttachment() {
     },
   });
 }
+
+
+export const useSearchNotes = (query: string) => {
+  return useQuery({
+    queryKey: [TABLE_KEYS.NOTES, "searchWithinNotes", query],
+    queryFn: () => searchNotesWithinNotes(query),
+    enabled: query.trim().length >= 2,
+  });
+};
+
+

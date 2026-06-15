@@ -280,7 +280,7 @@ export function SidebarFolders() {
       <SidebarSeparator />
 
       {notesByFolder.uncategorized.length > 0 && (
-        <SidebarGroup className="max-h-72 overflow-y-auto">
+        <SidebarGroup className="max-h-64 overflow-y-auto">
           <SidebarGroupLabel
             onClick={() => router.push(protectedRoutes.ALL_NOTES)}
             className="cursor-pointer"

@@ -44,3 +44,13 @@ export const formatUIFriendlyDate = (date: string) => {
 
   return rtf.format(days, "day");
 };
+
+export const getSnippet = (text: string, query: string, radius = 25) => {
+  const i = text.toLowerCase().indexOf(query.trim().toLowerCase());
+  if (i === -1) return text.slice(0, 100);
+  const start = Math.max(0, i - radius);
+  const end = Math.min(text.length, i + query.length + radius);
+  const prefix = start > 0 ? "…" : "";
+  const suffix = end < text.length ? "…" : "";
+  return `${prefix}${text.slice(start, end)}${suffix}`;
+}

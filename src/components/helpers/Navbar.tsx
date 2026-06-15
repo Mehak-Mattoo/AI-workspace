@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ChevronUp, Heart, LogOut } from "lucide-react";
+import { ChevronDown, ChevronUp, Heart, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { getInitials } from "./constants";
 import { authRoutes, myNotesPath, protectedRoutes } from "./routes";
@@ -154,7 +154,7 @@ const Navbar = ({ note }: NavbarProps) => {
               {/* <span className="hidden max-w-32 truncate text-sm font-medium sm:inline">
                 {profile.name || profile.email}
               </span> */}
-              <ChevronUp className="size-4 text-muted-foreground" />
+              <ChevronDown className="size-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
 
